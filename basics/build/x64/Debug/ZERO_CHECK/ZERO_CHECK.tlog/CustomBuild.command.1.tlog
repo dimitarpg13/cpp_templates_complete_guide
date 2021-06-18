@@ -1,0 +1,10 @@
+^C:\USERS\ADMIN\GIT\CPP_TEMPLATES_COMPLETE_GUIDE\BASICS\BUILD\CMAKEFILES\638736D0320C17BB57AB60196CB08668\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/admin/git/cpp_templates_complete_guide/basics -BC:/Users/admin/git/cpp_templates_complete_guide/basics/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/admin/git/cpp_templates_complete_guide/basics/build/CppTemplatesBasics.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

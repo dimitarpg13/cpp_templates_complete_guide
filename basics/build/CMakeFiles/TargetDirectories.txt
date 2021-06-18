@@ -1,0 +1,3 @@
+C:/Users/admin/git/cpp_templates_complete_guide/basics/build/CMakeFiles/max1.dir
+C:/Users/admin/git/cpp_templates_complete_guide/basics/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/admin/git/cpp_templates_complete_guide/basics/build/CMakeFiles/ZERO_CHECK.dir
