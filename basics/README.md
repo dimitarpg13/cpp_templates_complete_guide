@@ -263,4 +263,22 @@ In this example, the call to `max<double>` explicitly sets `RT` to `double`, but
 If a return type depends on template parameters, the simplest and best approach to deduce the return type is to let the compiler find out. Since C++14, this is possible by simply not declaring any return type (you still have to declare the return type to be `auto`):
 
 `basics/maxauto`
- 
+```cpp
+ template<typename T1, typename T2>
+ auto max (T1 a, T2 b)
+ {
+   return b < a ? a : b;
+ }
+``` 
+In fact, the use of `auto` for the return type without a corresponding *trailing return type* (which would be introduced with `a ->` at the end) indicates that the actual return type must be deduced from the return statements in the function body. Or course, deducing the return type from the function body has to be possible. Therefore, the code must be available and multiple return statements have to match.
+  Before C++14, it is only possible to let the compiler determine the return type by more or less making the implementation of the function part of its declaration. In C++11 we can benefit from the fact that the *trailing return type* syntax allows us to use the call parameters. That is, we can *declare* that the return type is derived from what `operator?:` yields:
+
+`basics/maxdecltype.hpp`
+
+```cpp
+ template<typename T1, typename T2>
+ auto max (T1 a, T2 b) -> decltype(b < a ? a : b)
+ {
+   return b < a ? a : b;
+ }
+```  

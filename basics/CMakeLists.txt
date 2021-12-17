@@ -9,3 +9,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # add the executable
 add_executable(max1 max1.cpp)
 add_executable(maxauto maxauto.cpp)
+add_executable(maxdecltype maxdecltype.cpp)
