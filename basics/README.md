@@ -282,3 +282,25 @@ In fact, the use of `auto` for the return type without a corresponding *trailing
    return b < a ? a : b;
  }
 ```  
+Here, the resulting type is determined by the rules for operator `?:`, which are fairly elaborate but generally produce an intuitively expected result (e.g. if `a` and `b` have different arithmetic types, a common arithmetic type is found for the result).
+ Note that
+```cpp
+ template<typename T1, typename T2>
+ auto max (T1 a, T2 b) -> decltype(b < a ? a : b);
+```
+is a *declaration*, so that the compiler uses the rules of `operator?:` called for parameters `a` and `b` to find out the return type of `max()` at compile time. The implementation does not necessarily have to match. In fact, using `true` as the condition for `operator?:` in the declaration is enough:
+```cpp
+ template<typename T1, typename T2>
+ auto max (T1 a, T2 b) -> decltype(true?a:b);
+```
+However, in any case this definition has a significant drawback: it might happen that the return type is a reference type, because under some conditions `T` might be a reference. For this reason you should ereturn the type *decayed* from `T`, which looks as follows:
+`basics/maxdecltypedecay.hpp`
+```cpp
+#include <type_traits>
+
+template<typename T1, typename T2>
+auto max (T1 a, T2 b) -> typename std::decay<decltype(true?a:b)>::type
+{
+  return b < a ? a : b;
+}
+```
