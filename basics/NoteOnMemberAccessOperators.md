@@ -6,3 +6,4 @@ Accesses a member of its operand
 |               |        |              |----------------------------------------------------
 | Operator name | Syntax | Overloadable | Inside class definition | Outside class definition |
 |--------------------------------------------------------------------------------------------|
+|  subscript    |  a[b]  |    Yes       | R& T::operator[](S b);  |           N/A            |
