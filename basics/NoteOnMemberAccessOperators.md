@@ -8,3 +8,6 @@ Accesses a member of its operand
 |  _subscript_    |  `a[b]`  |    Yes       | `R& T::operator[](S b);`  |           N/A            |
 |                 |          |              | `R& T::operator[](S1 s1, ...);` (**since C++23**) | N/A  |
 |  _indirection_  |  `*a`    |    Yes       | `R& T::operator*();` | `R& operator*(T a);` |
+|  _address-of_   |  `&a`    |    Yes       | `R* T::operator&();` | `R* operator&(T a); |
+|  _member of object_ | `a.b` |  No  |  N/A  |  N/A |
+|  _pointer to member of object_ | `a.*b` | No | N/A | N/A |  
