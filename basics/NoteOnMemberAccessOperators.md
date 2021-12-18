@@ -6,4 +6,4 @@ Accesses a member of its operand
 | Operator name | Syntax | Overloadable | Prototype examples (for `class T`) inside class definition | Prototype examples (for `class T`) outside class definition |
 |---------------|--------|--------------|-------------------------|--------------------------|
 |  _subscript_    |  `a[b]`  |    Yes       | `R& T::operator[](S b);`  |           N/A            |
-|                 |          |              | `R& T::operator[](S1 s1, ...);` |   |
+|                 |          |              | `R& T::operator[](S1 s1, ...);` (**since C++23**) | N/A  |
