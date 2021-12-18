@@ -304,3 +304,26 @@ auto max (T1 a, T2 b) -> typename std::decay<decltype(true?a:b)>::type
   return b < a ? a : b;
 }
 ```
+Here, the type trait `std::decay<>` is used, which returns the resulting type in a member type. Because the member `type` is a type, you have to qualify the expression with `typename` to access it.
+  Note that an initialization of type `auto` always decays. This also applies to return values when the return type is just `auto`. `auto` as a return type behaves just as in the following code, where `a` is declared by the decayed type of `i`, `int`:
+```cpp
+ int i = 42;
+ int const& ir = i; // ir refers to i
+ auto a = ir;       // a is declared as new object of type int
+```
+
+### Return Type as Common Type
+
+Since C++11, the C++ standard library provides a means to specify choosing "the more general type". `std:common_type<>::type` yields the "common type" of two (or more) different types passed as template arguments. For example:
+
+`basics/maxcommon.hpp`
+```cpp
+ #include <type_traits>
+
+ template<typename T1, typename T2>
+ std::common_type_t<T1,T2> max (T1 a, T2 b)
+ {
+   return b < a ? a : b;
+ }
+```
+
