@@ -326,4 +326,12 @@ Since C++11, the C++ standard library provides a means to specify choosing "the 
    return b < a ? a : b;
  }
 ```
-
+Again, `std::common_type` is a *type trait*, defined in `<type_traits>`, which yields a structure having a type member for the resulting type. Thus, its core usage is as follows:
+```cpp
+ typename std::common_type<T1,T2>::type // since C++11
+```
+However, since C++14 you can simplify the usage of traits like this by appending `_t` to the trait name and skipping `typename` and `::type`, so that the return type definition simply becomes:
+```cpp
+  std::common_type_t<T1,T2>  // equivalent since C++14
+```
+The way `std::common_type<>` is implemented uses some tricky template programming. Internally, it chooses the resulting type according to the language rules of operator `?:` or specializations for specific types. Thus, both `::max(4, 7.2)` and `::max(7.2, 4)` yield the same value 7.2 of type `double`. Note that `std::common_type<>` also decays.    
