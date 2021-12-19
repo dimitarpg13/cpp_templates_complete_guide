@@ -18,5 +18,12 @@ As with most user-defined overloads, return types should match return types prov
 
 ## Explanation
 
+Built-in *subscript* operator provides access to an object pointed-to by the pointer or array operand
+Built-in *indirection* operator provides access to an object or function pointed-to by the pointer operand
+Built-in *address-of* operator creates a pointer pointing to the object or function operand
+*Member of object* and *pointer to member of object* operators provide access to a data member or member function of the object operand
+Built-in *member of pointer* and *pointer to member of pointer* operators provide access to a data or member function of the class pointed-to by the pointer operand.
+
+### Build-in subscript operator
 
 
