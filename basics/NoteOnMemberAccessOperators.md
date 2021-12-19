@@ -26,4 +26,6 @@ Built-in *member of pointer* and *pointer to member of pointer* operators provid
 
 ### Build-in subscript operator
 
-
+The subscript operator expressions have the form
+--------------
+*expr1* `[` *expr2* `]`    (1)
