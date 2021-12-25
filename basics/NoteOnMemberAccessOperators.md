@@ -24,7 +24,7 @@ Built-in *address-of* operator creates a pointer pointing to the object or funct
 *Member of object* and *pointer to member of object* operators provide access to a data member or member function of the object operand
 Built-in *member of pointer* and *pointer to member of pointer* operators provide access to a data or member function of the class pointed-to by the pointer operand.
 
-###Build-in subscript operator
+### Build-in subscript operator
 
 The subscript operator expressions have the form
 
