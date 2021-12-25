@@ -24,17 +24,14 @@ Built-in *address-of* operator creates a pointer pointing to the object or funct
 *Member of object* and *pointer to member of object* operators provide access to a data member or member function of the object operand
 Built-in *member of pointer* and *pointer to member of pointer* operators provide access to a data or member function of the class pointed-to by the pointer operand.
 
-Build-in subscript operator
+###Build-in subscript operator
 
 The subscript operator expressions have the form
 
---------------
 *expr1* `[` *expr2* `]`          (1)
---------------
 *expr1* `[ {` *expr*, `...}]`        (2)    (**C++11**)
---------------
 *expr1* `[` *expr2*, *expr*, `...]`      (3)   (**C++23**)
---------------
+
 1) For the built-in operator, one of the expressions (either *expr1* or *expr2*) must be a glvalue of type "array of T" or a prvalue of type "pointer to T", while the other expression (*expr2* or *expr1*, respectively) must be a prvalue of unscoped enumeration or integral type. The result of this expression has the type T. *expr2* cannot be a unparenthesized comma expression (**since C++23**).
 2) The form with brace-enclosed list inside the square brackets is only used to call an overloaded `operator[]`.
 3) The form with comma-separated expression list inside the square brackets is only used to call an overloaded `operator[]`.
@@ -44,20 +41,15 @@ When applied to an array, the subscript expression is an lvalue if the array is 
 When applied to a pointer, the subscript expression is always an lvalue.
 The type `T` is not allowed to be an incomplete type, even if the size or internal structure of `T` is never used, as in `&x[0]`. 
 
--------------------
 Using an unparenthesized comma expression as second (right) argument of a subscript operator is deprecated. For example `a[b,c]` is deprecated and `a[(b,c)]` is not (**since C++20**), (**until C++23**)
--------------------
 An unparenthesized comma expression cannot be second (right) argument of a subscript operator. For example `a[b, c]` is either ill-formed or equivalent to `a.operator[](b, c)`. (**since C++23**)
+
 Parentheses are needed to for using a comma expression as the subscript, e.g. `a[(b,c)]`.
--------------------
 In overload resolution against user-defined operators for every object type `T` (possibly `cv`-qualified), the following function signature participates in overload resolution:
--------------------
 ```cpp
  T& operator[](T*, std::ptrdiff_t);
 ```
--------------------
 ```cpp
  T& operator[](std::ptrdiff_t, T*);
 ```
--------------------
 
