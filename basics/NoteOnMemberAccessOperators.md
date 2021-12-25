@@ -27,11 +27,13 @@ Built-in *member of pointer* and *pointer to member of pointer* operators provid
 ### Build-in subscript operator
 
 The subscript operator expressions have the form
-
+----------
 *expr1* `[` *expr2* `]`          (1)
+----------
 *expr1* `[ {` *expr*, `...}]`        (2)    (**C++11**)
+----------
 *expr1* `[` *expr2*, *expr*, `...]`      (3)   (**C++23**)
-
+----------
 1) For the built-in operator, one of the expressions (either *expr1* or *expr2*) must be a glvalue of type "array of T" or a prvalue of type "pointer to T", while the other expression (*expr2* or *expr1*, respectively) must be a prvalue of unscoped enumeration or integral type. The result of this expression has the type T. *expr2* cannot be a unparenthesized comma expression (**since C++23**).
 2) The form with brace-enclosed list inside the square brackets is only used to call an overloaded `operator[]`.
 3) The form with comma-separated expression list inside the square brackets is only used to call an overloaded `operator[]`.
@@ -46,10 +48,12 @@ An unparenthesized comma expression cannot be second (right) argument of a subsc
 
 Parentheses are needed to for using a comma expression as the subscript, e.g. `a[(b,c)]`.
 In overload resolution against user-defined operators for every object type `T` (possibly `cv`-qualified), the following function signature participates in overload resolution:
+-----------
 ```cpp
  T& operator[](T*, std::ptrdiff_t);
 ```
+-----------
 ```cpp
  T& operator[](std::ptrdiff_t, T*);
 ```
-
+-----------
