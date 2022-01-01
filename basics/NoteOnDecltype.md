@@ -5,6 +5,7 @@ Inspects the declared type of an entity or the type and value category of an exp
 ## Syntax
 
 (**since C++11**) `decltype (` *entity* `)`       (1)
+
 (**since C++11**) `decltype (` *expression* `)`   (2) 
 
 ## Explanation
