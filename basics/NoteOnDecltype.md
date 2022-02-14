@@ -25,5 +25,6 @@ then `decltype` yeilds the type of the _entity_ named in this expression. If the
 
    c) if the value category of *expression* is *prvalue*, then `decltype` yields `T`;
 
-        
-    
+      if *expression* is a function call which returns a prvalue of class type or is a comma expression whose right operand is such a function call, a temporary object is not introduced for that prvalue. (until **C++17**)        
+      
+      if *expression* is a function call which returns a _prvalue_ of class type or is a comma expression sf
