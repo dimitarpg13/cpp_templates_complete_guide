@@ -385,3 +385,8 @@ Defined in header `<utility>`
 template<class T>
 typename std::add_value_reference<T>::type declval() noexcept; // since C++11
 ```
+Converts any type `T` to a reference type, making it possible to use member functions in `decltype` expressions without the need to go through constructors.
+
+`declval` is commonly used in templates where acceptable template parameters may have no constructor in common, but have the same member function whose return type is needed.
+
+Note that `declval` can only be used in _unevaluated contexts_ and is not required to be defined; it is an error to evaluate an expression that contains this function. Formally, the program is ill-formed if this function is odr-used. 
