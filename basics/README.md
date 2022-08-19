@@ -335,3 +335,42 @@ However, since C++14 you can simplify the usage of traits like this by appending
   std::common_type_t<T1,T2>  // equivalent since C++14
 ```
 The way `std::common_type<>` is implemented uses some tricky template programming. Internally, it chooses the resulting type according to the language rules of operator `?:` or specializations for specific types. Thus, both `::max(4, 7.2)` and `::max(7.2, 4)` yield the same value 7.2 of type `double`. Note that `std::common_type<>` also decays.    
+
+
+## Default Template Arguments
+
+You can also define default values for template parameters. These values are called _default template arguments_ and can be used with any kind of template. Prior to C++ 11, default template arguments were only permitted in class templates, due to a historical glitch in the development of function templates. The default values may even refer to previous template parameters.
+
+For example, if you want to combine the approaches to define the return type with the ability to have multiple parameter types (as discussed in the section before), you can introduce a template parameter `RT` for the return type with the common type of the two arguments as default. Again, we have multiple options:
+
+1. We can use operator `?:` directly. However, because we have to apply operator `?:` before the call parameters `a` and `b` are declared, we can only use their types:
+
+`basics/maxdefault1.hpp`
+```cpp
+#include <type_traits>
+
+template<typename T1, typename T2, 
+         typename RT = std::decay_t<decltype(true ? T1() : T2())>>
+RT max (T1 a, T2 b)
+{
+   return b < a ? a : b;
+}
+``` 
+Note again the usage of `std::decay_t<>` to ensure that no reference can be returned.
+Note also that this implementation requires that we are able to call default constructors for the passed types. There is another solution, using `std::declval`, which, however, makes the declaration even more complicated:
+
+`basics/maxdefaultdeclval.hpp`
+```cpp
+#include <utility>
+
+template<typename T1, typename T2,
+         typename RT = std::decay_t<decltype(true ? std::declval<T1>()
+                                                  : std::declval<T2>())>>
+RT max (T1 a, T2 b)
+{
+   return b < a ? a : b;
+}
+```
+So in this case the function template `std::declval<>()` is used as a placeholder for an object reference of a specific type. The function does not have a definition and therefore cannot be called (and does not create an object). Hence, it can only be used in unevaluated operands (such as those of `decltype` and `sizeof` constructs). So, instead of trying to create an object, you can assume you have an object of the corresponding type. 
+
+
