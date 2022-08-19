@@ -371,6 +371,17 @@ RT max (T1 a, T2 b)
    return b < a ? a : b;
 }
 ```
-So in this case the function template `std::declval<>()` is used as a placeholder for an object reference of a specific type. The function does not have a definition and therefore cannot be called (and does not create an object). Hence, it can only be used in unevaluated operands (such as those of `decltype` and `sizeof` constructs). So, instead of trying to create an object, you can assume you have an object of the corresponding type. 
+So in this case the function template `std::declval<>()` is used as a placeholder for an object reference of a specific type. The function does not have a definition and therefore cannot be called (and does not create an object). Hence, it can only be used in unevaluated operands (such as those of `decltype` and `sizeof` constructs). So, instead of trying to create an object, you can assume you have an object of the corresponding type.
+To avoid that we have to call a (default) constructor for `T1` and `T2` to be able to call operator `?:` in the expression to initialize `RT`, we use `std::declval` to "use" objects of the corresponding type without creating them. This is only possible in the unevaluated context of `decltype`.
+ 
 
+## Appendix
 
+### `std::declval`
+
+Defined in header `<utility>`
+
+```cpp
+template<class T>
+typename std::add_value_reference<T>::type declval() noexcept; // since C++11
+```
