@@ -468,4 +468,4 @@ Determines the common type among all types `T...` that is the type all `T...` ca
   * if applying `std::decay` to at least one of `T1` and `T2` produces a different type, the member type names the same type as `std::common_type<std::decay<T1>::type, std::decay<T2>::type>::type`, if it exists; if not, there is no member type. 
   * otherwise, if there is a user specialization for `std::common_type<T1, T2>`, that specialization is used;
   * otherwise, if `std::decay<decltype(false ? std::declval<T1>() : std::declval<T2>())>::type` is a valid type, the member type denotes that type; 
-  * otherwise, if `std::decay<decltype(false ? std::declval<CR1>() : std::declval<CR2>())>::type` is a valid type, where `CR1` and `CR2` are `const std::remove_reference_t<T1>&` and `const std::remove_reference_t<T2>&` respectively, the member denotes that type;
+  * otherwise, if ```std::decay<decltype(false ? std::declval<CR1>() : std::declval<CR2>())>::type``` is a valid type, where `CR1` and `CR2` are `const std::remove_reference_t<T1>&` and `const std::remove_reference_t<T2>&` respectively, the member denotes that type;
