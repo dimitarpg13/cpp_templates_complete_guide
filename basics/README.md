@@ -486,4 +486,5 @@ If an instantiation of a template above depends, directly or indirectly, on an i
 ```cpp
 template< class... T >
 using common_type_t = typename common_type<T...>::type; 
-```_(since C++ 14)_
+```
+_(since C++ 14)_
