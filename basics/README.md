@@ -470,4 +470,16 @@ Determines the common type among all types `T...` that is the type all `T...` ca
   * otherwise, if `std::decay<decltype(false ? std::declval<T1>() : std::declval<T2>())>::type` is a valid type, the member type denotes that type; 
   * _(since C++ 20)_ otherwise, if ```std::decay<decltype(false ? std::declval<CR1>() : std::declval<CR2>())>::type``` is a valid type, where `CR1` and `CR2` are `const std::remove_reference_t<T1>&` and `const std::remove_reference_t<T2>&` respectively, the member denotes that type;
   * otherwise, there is no member type.
- 
+* if `sizeof...(T)` is greater than two (i.e. `T...` consists of the types `T1`, `T2`, `R...`), then if `std::common_type<T1, T2>::type` exists, the member type denotes `std::common_type<typename std::common_type<T1, T2>::type, R...>::type` if such a type exists. In all other cases, there is no member type.
+
+The types in the parameter pack `T` shall each be a complete type, (possibly `cv`-qualified) `void`, or an array of unknown bound. Otherwise, the behavior is undefined.
+If an instantiation of a template above depends, directly or indirectly, on an incomplete type, and that instantiation could yield a different result if that type were hypothetically completed, the behavior is undefined.
+
+#### Member types
+
+| Name | Definition |
+|----|----|
+|type|the common type for all `T...`|
+
+#### Helper types
+
