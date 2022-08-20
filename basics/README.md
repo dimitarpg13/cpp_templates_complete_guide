@@ -374,9 +374,27 @@ RT max (T1 a, T2 b)
 So in this case the function template `std::declval<>()` is used as a placeholder for an object reference of a specific type. The function does not have a definition and therefore cannot be called (and does not create an object). Hence, it can only be used in unevaluated operands (such as those of `decltype` and `sizeof` constructs). So, instead of trying to create an object, you can assume you have an object of the corresponding type.
 To avoid that we have to call a (default) constructor for `T1` and `T2` to be able to call operator `?:` in the expression to initialize `RT`, we use `std::declval` to "use" objects of the corresponding type without creating them. This is only possible in the unevaluated context of `decltype`.
 
-2. We can also use the `std::common_type<>` type trait to specify the default valye for the return type:
+2. We can also use the `std::common_type<>` type trait to specify the default value for the return type:
+`basics/maxdefault3.hpp`
+```cpp
+#include <type_traits>
 
- 
+template<typename T1, typename T2,
+         typename RT = std::common_type_t<T1,T2>>
+RT max (T1 a, T2 b)
+{
+  return b < a ? a : b;
+}
+```
+Again, note that `std::common_type<>` decays so that the return type can't become a reference.
+In all cases, as a caller, you can now use the default value for the return type:
+```cpp
+auto a = ::max(4, 7.2);
+```
+or specify the return type after all other argument types explicitly:
+```cpp
+auto b = ::max<double,int,long double>(7.2, 4);
+```
 
 ## Appendix
 
@@ -433,3 +451,21 @@ int main()
              << "n2 = " << n2 << '\n';
 }
 ```
+
+### `std::common_type`
+
+defined in header `<type_traits>` _(since C++11)_
+```cpp
+template<class... T>
+struct common_type;
+```
+
+Determines the common type among all types `T...` that is the type all `T...` can be implicitly converted to. If such a type exists (as determined according to the rules below), the member `type` names that type. Otherwise, there is no member type.
+
+* if `sizeof...(T)` is zero, there is no member type.
+* if `sizeof...(T)` is one (i.e. `T...` contains only one type `T0`), the member type names the same type as `std::common_type<T0, T0>::type` if it exists; otherwise there is no member type.
+* if `sizeof...(T)` is two (i.e. `T...` contains exactly two types `T1` and `T2`),
+  * if applying `std::decay` to at least one of `T1` and `T2` produces a different type, the member type names the same type as `std::common_type<std::decay<T1>::type, std::decay<T2>::type>::type`, if it exists; if not, there is no member type. 
+  * otherwise, if there is a user specialization for `std::common_type<T1, T2>`, that specialization is used;
+  * otherwise, if `std::decay<decltype(false ? std::declval<T1>() : std::declval<T2>())>::type` is a valid type, the member type denotes that type; 
+  * otherwise, if `std::decay<decltype(false ? std::declval<CR1>() : std::declval<CR2>())>::type` is a valid type, where `CR1` and `CR2` are `const std::remove_reference_t<T1>&` and `const std::remove_reference_t<T2>&` respectively, the member denotes that type;

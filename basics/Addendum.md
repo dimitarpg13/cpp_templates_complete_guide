@@ -31,6 +31,10 @@ _declarator_ - a function declarator
   * opaque enum declaration _(since C++11)_
   * simple declaration
 
+### Simple declaration
+A simple declaration is a statement that introduces, creates, and optionally initializes one or several identifiers, typically variables.
+_decl-specified-seq init-declarator-list_(optional)`;`   (1)
+
 
 ## Defintions and ODR
 
