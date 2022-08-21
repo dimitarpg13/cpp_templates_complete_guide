@@ -602,6 +602,64 @@ In this example, the call to `combine()` is ambiguous because the first candidat
 Given this first principle we are left with specifying how well a given argument matches the corresponding parameter of a viable candidate. As a first approximation, we can rank the possible matches as follows (from best to worst):
 
 1. Perfect match. The parameter has the type of the expression or it has a type that is a reference to the type of the expression (possibly with added `const` and/or `volatile` qualifiers).
-2. Match with minor adjustments. This includes, for example, the decay of an array variable to a pointer to its first element or the addition of `const` to match an argument of type ```int **` to a parameter of type `int const * const *`. 
+2. Match with minor adjustments. This includes, for example, the decay of an array variable to a pointer to its first element or the addition of `const` to match an argument of type `int **` to a parameter of type `int const * const *`. 
 3. Match with promotion. Promotion is a kind of implicit conversion that includes the conversion of small integral types (such as `bool`, `char`, `short`, and sometimes enumerations) to `int`, `unsigned int`, `long` or `unsigned long` and the conversion of `float` to `double`.
-4.   
+4. Match with standard conversions only. This includes any sort of standard conversion (such as `int` to `float`) or a conversion from a derived class to one f its public, unambiguous base classes but excludes the implicit call to a conversion operator or a converting constructor.
+5. Match with user-defined conversions. This allows any kind of implicit conversions. 
+6. Match with ellipsis (`...`). An ellipsis parameter can match almost any type. However, there is one exception: class types with nontrivial copy constructor may or may not be valid (implementations are free to allow or disallow this).
+The following contrived example illustrates some of these matches:
+```cpp
+ int f1(int);     // #1
+ int f1(double);  // #2
+ f1(4);           // calls #1: perfect match (#2 requires a standard conversion)
+ 
+ int f2(int);     // #3
+ int f2(char);    // #4
+ f2(true);        // calls #3: match with promotion
+                  // (#4 requires stronger standard conversion)
+
+ class X {
+     public:
+       X(int);
+ };
+ int f3(X);       // #5
+ int f3(...);     // #6
+ f3(7);           // calls #5: match with user-defined conversion
+                  // (#6 requires a match with ellipsis)
+```
+Note that overload resolution occurs _after_ template argument deduction, and this deduction does not consider all these sorts of conversions. For example:
+```cpp
+template<typename T>
+class MyString {
+    public:
+    MyString(T const*);  // converting constructor
+    ...
+};
+
+template<typename T>
+MyString<T> truncate(MyString<T> const&, int);
+
+int main()
+{
+    MyString<char> str1, str2;
+    str1 = truncate<char>("Hello World", 5);    // OK
+    str2 = truncate("Hello World", 5);          // ERROR
+}
+```
+The implicit conversion provided through the converting constructor is not considered during template argument deduction. The assignment to `str2` finds no viable function `truncate()`; hence overload resolution is not performed at all.
+
+In the context of template argument deduction, recall also that an rvalue reference to a template parameter can deduce to either an lvalue reference type (after reference collapsing) if the corresponding argument is an lvalue or to an rvalue reference type if the argument is an rvalue.
+For example:
+```cpp
+template<typename T> void strange(T&&, T&&);
+template<typename T> void bizzarre(T&&, double&&);
+
+int main()
+{
+    strange(1.2, 3.4);   // OK: with T deduced to double
+    double val = 1.2;
+    strange(val, val);   // OK: with T deduced to double&
+    strange(val, 3.4);   // ERROR: conflicting deductions
+    bizzare(val, val);   // ERROR: lvalue val doesn't match double&&
+}
+```
