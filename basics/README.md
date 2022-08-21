@@ -602,6 +602,6 @@ In this example, the call to `combine()` is ambiguous because the first candidat
 Given this first principle we are left with specifying how well a given argument matches the corresponding parameter of a viable candidate. As a first approximation, we can rank the possible matches as follows (from best to worst):
 
 1. Perfect match. The parameter has the type of the expression or it has a type that is a reference to the type of the expression (possibly with added `const` and/or `volatile` qualifiers).
-2. Match with minor adjustments. This includes, for example, the decay of an array variable to a pointer to its first element or the addition of `const` to match an argument of type `int\*\*` to a parameter of type `int const \* const \*`. 
+2. Match with minor adjustments. This includes, for example, the decay of an array variable to a pointer to its first element or the addition of `const` to match an argument of type `int` **\*\*** to a parameter of type `int const` * `const` *. 
 3. Match with promotion. Promotion is a kind of implicit conversion that includes the conversion of small integral types (such as `bool`, `char`, `short`, and sometimes enumerations) to `int`, `unsigned int`, `long` or `unsigned long` and the conversion of `float` to `double`.
 4.   
