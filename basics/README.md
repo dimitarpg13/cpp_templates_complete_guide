@@ -395,6 +395,27 @@ or specify the return type after all other argument types explicitly:
 ```cpp
 auto b = ::max<double,int,long double>(7.2, 4);
 ```
+However, again we have the problem that we have to specify three types to be able to specify the return type only. Instead, we would need the ability to have the return type as the first template parameter, while still being able to deduce it from the argument types. In principle, it is possible to have default arguments for leading function template parameters even if parameters without default arguments follow:
+
+```cpp
+template<typename RT = long, typename T1, typename T2>
+RT max (T1 a, T2 b)
+{
+  return b < a ? a : b;
+}
+```
+With this definition, for example, you can call:
+```cpp
+int i;
+long l;
+...
+max(i, l);  // returns long (default argument of template parameter for return type)
+max<int>(4, 42); // returns int as explicitly requested
+```
+
+## Overloading Function Templates
+
+Like ordinary functions, function templates can be overloaded. That is, you can have different function definitions with the same function name so that when that name is used in a function call, a C++ compiler must decide which one of the various candidates to call. The rules for this decision may become rather complicated, even without templates. 
 
 ## Appendix
 
@@ -488,3 +509,98 @@ template< class... T >
 using common_type_t = typename common_type<T...>::type; 
 ```
 _(since C++ 14)_
+
+#### Specializations
+
+Users may specialize `common_type` for types `T1` and `T2` if
+
+* at least one of `T1` and `T2` depends on a user-defined type, and
+* `std::decay` is an identity transformation for both `T1` and `T2`.
+
+If such a specialization has a member named `type`, it must be a public and unambiguous member that names `cv`-unqualified non-reference type to which both `T1` and `T2` are explicitly convertible. Additionally, `std::common_type<T1, T2>::type` and `std::common_type<T2, T1>::type` must denote the same type.
+A program that adds `common_type` specializations in violations of these rules has undefined behavior.
+Note that the behavior of a program that adds a specialization to any other template (except for `std::basic_common_reference)` _(since C++ 20)_ from `<type_traits>` is undefined.
+
+The following specializations are already provided by the standard library:
+
+* `std::common_type<std::chrono::duration>` _(C++ 11)_ : specializes `std::common_type` trait via class template specialization  
+* `std::common_type<std::chrono::time_point>` _(C++ 11)_ : specializes `std::common_type` trait via class template specialization
+* `std::common_type<std::pair>` _(C++ 23)_ : determines the common type of two pairs via class templater specialization
+* `std::common_type<tuple-like>` _(C++ 23)_ : determines the common type of a tuple and tuple-like type
+
+#### Possible implementation
+
+```cpp
+// primary template (used for zero types)
+template<class...>
+struct common_type {};
+
+// one type
+template <class T>
+struct common_type<T> : common_type<T, T> {};
+
+namespace detail {
+template<class...>
+using void_t = void;
+
+template<class T1, class T2>
+using conditional_result_t = decltype(false ? std::declval<T1>() : std::declval<T2>());
+
+template<class, class, class = void>
+struct decay_conditional_result {};
+
+
+}
+
+``` 
+
+### Overload Resolution
+
+_Overload resolution_ is the process that selects the function to call for a given call expression. Consider the following simple example:
+
+```cpp
+void display_num(int);     // #1
+void display_num(double);  // #2
+
+int main()
+{
+   display_num(399);   // #1 matches better than #2
+   display_num(3.99);  // #2 matches better than #1
+}
+```
+In this example, the function name `display_num()` is _overloaded_. When this name is used in a call, a C++ compiler must therefore distinguish between the various candidates using additional information; mostly, this information is the types of the call arguments. In our example, it makes intuitive sense to call the `int` version when the function is called with integer argument and the `double` version when a floating-point argument is provided. The formal process that attempts to model this intuitve choice is the overload resolution process.
+
+The general ideas behind the rules that guide the overload resolution process are simple enough, but the details have become quite complex during the C++ standardization process. This complexity was driven mostly by the desire to support various real-wrold examples that intuitively (to a human) seem to have an "obviously best match" but when trying to formalize this intuition various subtleties arose.
+
+#### When Does Overload Resolution Kick In?
+
+Overload resolution is just one part of the complete processing of a function call. In fact, it is not part of every function call. First, calls through function pointers and calls through pointers to member functions are not subject to overload resolution because the function to call is entirely determined (at run time) by the pointers. Second, function-like macros cannot be overloaded and are therefore not subject to overload resolution.
+   At a very high level, a call to a named function can be processed in the following way:
+* the name is looked up to form an initial _overload set_.
+* if necessary, this set is adjusted in various ways (e.g. template argument deduction and substitution occurs, which can cause some function template candidates to be discarded).
+* any candidate that doesn't match the call at all (even after considering implicit conversions and default arguments) is eliminated from the overload set. This results in a set of _viable function candidates_. 
+* _overload resolution_ is performed to find a _best_ candidate. If there is one, it is selected; otherwise, the call is ambiguous.
+* the selected candidate is checked. For example, if it is a deleted function (i.e. one defined with `= delete`) or an inaccessible private member function, a diagnostic is issued.
+
+Each of these steps has its own subtelties, but overload resolution is arguably the most complex. Fortunately, a few simple principles clarify the majority of situations.
+
+#### Simplified Overload Resolution
+
+Overload resolution ranks the viable candidate functions by comparing how each argument of the call matches the corresponding parameter of the candidates. For one candidate to be considered better than another, the better candidate cannot have any of its parameters to be a worse match than the corresponding parameter in the other candidate. The following example illustrates this:
+
+```cpp
+ void combine (int , double);
+ void combine (long, int);
+
+ int main()
+ {
+   combine(1, 2); // ambiguous!
+ } 
+``` 
+In this example, the call to `combine()` is ambiguous because the first candidate matches the first argument (the literal 1 of type `int`) _best_, whereas the second candidate matches the second argument _best_. We could argue that `int` is in some sense closer to `long` than to `double` (which supports choosing the second candidate), but C+ does not attempt to define a measure of closeness that involves multiple call arguments. 
+
+Given this first principle we are left with specifying how well a given argument matches the corresponding parameter of a viable candidate. As a first approximation, we can rank the possible matches as follows (from best to worst):
+
+1. Perfect match. The parameter has the type of the expression or it has a type that is a reference to the type of the expression (possibly with added `const` and/or `volatile` qualifiers).
+2. Match with minor adjustments. This includes, for example, the decay of an array variable to a pointer to its first element or the addition of `const` to match an argument of type `int**` to a parameter of type `int const * const *`. 
+3. 
